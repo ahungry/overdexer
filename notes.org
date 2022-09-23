@@ -1,0 +1,7 @@
+* Use Gloss for the byte data parsing
+https://github.com/clj-commons/gloss/wiki/Introduction
+
+* Clojure directory/file watchers
+Try out these options
+https://github.com/derekchiang/Clojure-Watch
+https://github.com/juxt/dirwatch
