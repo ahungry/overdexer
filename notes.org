@@ -1,5 +1,6 @@
 * IESDP file formats
 https://gibberlings3.github.io/iesdp/file_formats/
+https://gibberlings3.github.io/iesdp/file_formats/general.htm
 
 * Use Gloss for the byte data parsing
 https://github.com/clj-commons/gloss/wiki/Introduction

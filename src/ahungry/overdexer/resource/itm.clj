@@ -4,6 +4,7 @@
    [gloss.core :as c]
    [gloss.io :as io]))
 
+;; https://gibberlings3.github.io/iesdp/file_formats/general.htm
 ;; https://gibberlings3.github.io/iesdp/file_formats/ie_formats/itm_v1.htm
 
 ;; https://github.com/clj-commons/gloss/wiki/Introduction
