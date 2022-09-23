@@ -1,6 +1,8 @@
-(ns ahungry.overdexer.resource.itm
+(ns ahungry.overdexer.entity.itm
   (:require
-   [ahungry.overdexer.resource.iesdp :as ie]
+   [ahungry.overdexer.entity.db :refer [db]]
+   [ahungry.overdexer.entity.iesdp :as ie]
+   [clojure.java.jdbc :as j]
    [clojure.java.io]
    [gloss.core :as c]
    [gloss.io :as io]))
@@ -113,3 +115,10 @@
          (map apply-enchantment-filters)
          (filter (complement nil?))
          (map #(.getName %)))))
+
+;; (j/query db ["select * from x"])
+
+(defn make-table [db ]
+  (j/execute! db (j/create-table-ddl "itm" [[:name "text"]] {:conditional? true})))
+
+(j/query db ["select * from itm"])

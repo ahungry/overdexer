@@ -1,6 +1,6 @@
 (ns ahungry.overdexer
   (:require
-   [ahungry.overdexer.resource.itm :as itm])
+   [ahungry.overdexer.entity.itm :as itm])
   (:gen-class))
 
 (defn x []

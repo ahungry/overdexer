@@ -1,4 +1,4 @@
-(ns ahungry.overdexer.resource.iesdp
+(ns ahungry.overdexer.entity.iesdp
   (:require
    [gloss.core :as c]
    [gloss.io :as io]))
