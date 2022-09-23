@@ -15,5 +15,7 @@
   "I don't do a whole lot ... yet."
   [& args]
   (prn "Searching for the items...")
-  (prn (itm/get-item-files))
-  (greet {:name (first args)}))
+  (time (prn (count (itm/get-item-files-sequentially))))
+  (time (prn (count (itm/get-item-files))))
+  (greet {:name (first args)})
+  (System/exit 0))

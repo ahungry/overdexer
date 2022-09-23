@@ -90,7 +90,8 @@
     (> (or enchantment 0) 6)))
 
 (defn apply-enchantment-filters [file]
-  (if (is-enchanted? file) file nil))
+  (when (and (re-matches #".*\.itm$" (.getName file))
+           (is-enchanted? file)) file))
 
 (defn get-item-files
   "Pull out all items that match a given query condition"
@@ -98,7 +99,16 @@
   (let [directory (clojure.java.io/file "/home/mcarter/bgee/bgee2/override")
         files (file-seq directory)]
     (->> files
-         (filter #(re-matches #".*\.itm$" (.getName %1)))
          (pmap apply-enchantment-filters)
+         (filter (complement nil?))
+         (map #(.getName %)))))
+
+(defn get-item-files-sequentially
+  "Pull out all items that match a given query condition"
+  []
+  (let [directory (clojure.java.io/file "/home/mcarter/bgee/bgee2/override")
+        files (file-seq directory)]
+    (->> files
+         (map apply-enchantment-filters)
          (filter (complement nil?))
          (map #(.getName %)))))
