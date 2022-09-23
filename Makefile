@@ -18,4 +18,8 @@ uberjar: ci
 ci:
 	clj -T:build ci
 
-.PHONY: test
+deps: prepare
+prepare:
+	clj -P
+
+.PHONY: test prepare
