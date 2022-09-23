@@ -2,6 +2,8 @@
  :deps {
         org.clojure/clojure {:mvn/version "1.11.1"}
         org.clj-commons/gloss {:mvn/version "0.3.0"}
+        org.clojure/java.jdbc {:mvn/version "0.7.12"}
+        org.xerial/sqlite-jdbc {:mvn/version "3.39.3.0"}
         }
  :aliases
  {:run-m {:main-opts ["-m" "ahungry.overdexer"]}
