@@ -89,6 +89,9 @@
         enchantment (:enchantment item)]
     (> (or enchantment 0) 6)))
 
+(defn apply-enchantment-filters [file]
+  (if (is-enchanted? file) file nil))
+
 (defn get-item-files
   "Pull out all items that match a given query condition"
   []
@@ -96,5 +99,6 @@
         files (file-seq directory)]
     (->> files
          (filter #(re-matches #".*\.itm$" (.getName %1)))
-         (filter is-enchanted?)
+         (pmap apply-enchantment-filters)
+         (filter (complement nil?))
          (map #(.getName %)))))
