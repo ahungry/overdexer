@@ -1,5 +1,6 @@
 (ns ahungry.overdexer.resource.itm
   (:require
+   [ahungry.overdexer.resource.iesdp :as ie]
    [clojure.java.io]
    [gloss.core :as c]
    [gloss.io :as io]))
@@ -15,43 +16,43 @@
 ;; char array = X byte ascii, everything else = little endian values
 (def header-frame
   (c/ordered-map
-   :signature (c/string :utf-8 :length 4)
-   :version (c/string :utf-8 :length 4)
-   :unidentified-name :int32-le
-   :identified-name :int32-le
-   :replacement-item (c/string :utf-8 :length 8)
-   :flags :int32-le
-   :item-type :int16-le
-   :usability-bitmask :int32-le
-   :item-animation (c/string :utf-8 :length 2) ;; :int16-le
-   :min-level :int16-le
-   :min-strength :int16-le
-   :min-strength-bonus :byte
-   :kit-usability-1 :byte
-   :min-intelligence :byte
-   :kit-usability-2 :byte
-   :min-dexterity :byte
-   :kit-usability-3 :byte
-   :min-wisdom :byte
-   :kit-usability-4 :byte
-   :min-constitution :byte
-   :weapon-proficiency :byte
-   :min-charisma :int16-le
-   :price :int32-le
-   :stack-amount :int16-le
-   :inventory-icon (c/string :utf-8 :length 8)
-   :lore-to-id :int16-le
-   :ground-icon (c/string :utf-8 :length 8)
-   :weight :int32-le
-   :unidentified-description :int32-le
-   :identified-description :int32-le
-   :description-icon (c/string :utf-8 :length 8)
-   :enchantment :int32-le
-   :offset-to-extended-headers :int32-le
-   :count-of-extended-headers :int16-le
-   :offset-to-feature-blocks :int32-le
-   :index-into-feature-blocks :int16-le
-   :count-of-feature-blocks :int16-le))
+   :signature                  (ie/char-array 4)
+   :version                    (ie/char-array 4)
+   :unidentified-name          (ie/strref     4)
+   :identified-name            (ie/strref     4)
+   :replacement-item           (ie/resref     8)
+   :flags                      (ie/dword      4)
+   :item-type                  (ie/word       2)
+   :usability-bitmask          (ie/dword      4)
+   :item-animation             (ie/char-array 2)
+   :min-level                  (ie/word       2)
+   :min-strength               (ie/word       2)
+   :min-strength-bonus         (ie/_byte      1)
+   :kit-usability-1            (ie/_byte      1)
+   :min-intelligence           (ie/_byte      1)
+   :kit-usability-2            (ie/_byte      1)
+   :min-dexterity              (ie/_byte      1)
+   :kit-usability-3            (ie/_byte      1)
+   :min-wisdom                 (ie/_byte      1)
+   :kit-usability-4            (ie/_byte      1)
+   :min-constitution           (ie/_byte      1)
+   :weapon-proficiency         (ie/_byte      1)
+   :min-charisma               (ie/word       2)
+   :price                      (ie/dword      4)
+   :stack-amount               (ie/word       2)
+   :inventory-icon             (ie/resref     8)
+   :lore-to-id                 (ie/word       2)
+   :ground-icon                (ie/resref     8)
+   :weight                     (ie/dword      4)
+   :unidentified-description   (ie/strref     4)
+   :identified-description     (ie/strref     4)
+   :description-icon           (ie/resref     8)
+   :enchantment                (ie/dword      4)
+   :offset-to-extended-headers (ie/dword      4)
+   :count-of-extended-headers  (ie/word       2)
+   :offset-to-feature-blocks   (ie/dword      4)
+   :index-into-feature-blocks  (ie/word       2)
+   :count-of-feature-blocks    (ie/word       2)))
 
 ;; FIXME: Probably read directly into the java.nio.HeapByteBuffer this creates,
 ;; instead of slurping and then translating
