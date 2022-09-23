@@ -62,7 +62,9 @@
      (.order java.nio.ByteOrder/LITTLE_ENDIAN))))
 
 (defn test-item-header [s]
-  (io/decode header-frame (.slice (get-item s) 0 0x72)))
+  (try
+    (io/decode header-frame (.slice (get-item s) 0 0x72))
+    (catch Exception _ nil)))
 
 (defn foo []
   (prn "Yay"))
@@ -78,3 +80,21 @@
     (with-open
       [out-stream (clojure.java.io/output-stream "file:///tmp/x.log")]
       (io/encode-to-stream header-frame out-stream records))))
+
+(defn is-enchanted?
+  "Check if enchantment is beyond some value."
+  [file]
+  (let [name (.getName file)
+        item (test-item-header name)
+        enchantment (:enchantment item)]
+    (> (or enchantment 0) 6)))
+
+(defn get-item-files
+  "Pull out all items that match a given query condition"
+  []
+  (let [directory (clojure.java.io/file "/home/mcarter/bgee/bgee2/override")
+        files (file-seq directory)]
+    (->> files
+         (filter #(re-matches #".*\.itm$" (.getName %1)))
+         (filter is-enchanted?)
+         (map #(.getName %)))))

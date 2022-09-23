@@ -14,5 +14,6 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (x)
+  (prn "Searching for the items...")
+  (prn (itm/get-item-files))
   (greet {:name (first args)}))

@@ -4,6 +4,7 @@
 
 all: test
 
+run: run-m
 run-m:
 	clojure -M:run-m "Ahungry"
 
