@@ -92,11 +92,15 @@
 ;; NOTE: strref = int reference in dialog.tlk, resref = 8 byte ascii w/ garbage
 ;; char array = X byte ascii, everything else = little endian values
 (def header-frame (apply c/ordered-map header-spec))
+(def ext-header-frame (apply c/ordered-map ext-header-spec))
 
+;; (c/defcodec itm-frame [header-frame (c/repeated ext-header-frame)])
+(def itm-frame
+  {
+   :header header-frame
+   :ext-headers (c/repeated ext-header-frame)
+   })
 
-(def ext-header-frame
-  (c/ordered-map
-   :x :byte))
 
 ;; FIXME: Probably read directly into the java.nio.HeapByteBuffer this creates,
 ;; instead of slurping and then translating
@@ -107,9 +111,14 @@
      (.order java.nio.ByteOrder/LITTLE_ENDIAN))))
 
 (defn test-item-header [s]
-  (try
-    (io/decode header-frame (.slice (get-item s) 0 0x72))
-    (catch Exception _ nil)))
+  (let [bytes (get-item s)]
+    (prn bytes)
+    (io/decode itm-frame (.slice bytes 0 (+ 0x72 56)))))
+
+(defn test-ext-header [s]
+  (let [bytes (get-item s)]
+    (prn bytes)
+    (io/decode ext-header-frame (.slice bytes 0x72 56))))
 
 (defn foo []
   (prn "Yay"))
