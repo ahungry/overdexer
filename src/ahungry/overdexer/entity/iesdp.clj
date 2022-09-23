@@ -6,7 +6,7 @@
 (defn char-array [n]
   (c/string :utf-8 :length n))
 
-(defn strref [_] :int32-le)
+(defn strref [_] {:type :strref :val :int32-le})
 
 (defn resref [n] (char-array n))
 

@@ -14,10 +14,8 @@
 ;; https://cljdoc.org/d/org.clj-commons/gloss/0.3.0/api/gloss
 ;; https://github.com/d-t-w/by-example-gloss/blob/master/src/by_example_gloss/core.clj
 
-;; NOTE: strref = int reference in dialog.tlk, resref = 8 byte ascii w/ garbage
-;; char array = X byte ascii, everything else = little endian values
-(def header-frame
-  (c/ordered-map
+(def header-spec
+  [
    :signature                  (ie/char-array 4)
    :version                    (ie/char-array 4)
    :unidentified-name          (ie/strref     4)
@@ -54,7 +52,51 @@
    :count-of-extended-headers  (ie/word       2)
    :offset-to-feature-blocks   (ie/dword      4)
    :index-into-feature-blocks  (ie/word       2)
-   :count-of-feature-blocks    (ie/word       2)))
+   :count-of-feature-blocks    (ie/word       2)
+ ])
+
+(def ext-header-spec
+  [
+   :attack-type               (ie/char-array 1)
+   :id-req                    (ie/char-array 1)
+   :location                  (ie/char-array 1)
+   :alternative-dice-sides    (ie/char-array 1)
+   :use-icon                  (ie/resref     8)
+   :target-type               (ie/char-array 1)
+   :target-count              (ie/char-array 1)
+   :range                     (ie/word       2)
+   :launcher-required         (ie/_byte      1)
+   :alternative-dice-thrown   (ie/_byte      1)
+   :speed-factor              (ie/_byte      1)
+   :alternative-damage-bonus  (ie/_byte      1)
+   :thac0-bonus               (ie/word       2)
+   :dice-sides                (ie/_byte      1)
+   :primary-type-school       (ie/_byte      1)
+   :dice-thrown               (ie/_byte      1)
+   :secondary-type            (ie/_byte      1)
+   :damage-bonus              (ie/word       2)
+   :damage-type               (ie/word       2)
+   :count-of-feature-blocks   (ie/word       2)
+   :index-into-feature-blocks (ie/word       2)
+   :max-charges               (ie/word       2)
+   :charge-depletion-behavior (ie/word       2)
+   :flags                     (ie/dword      4)
+   :projectile-animation      (ie/word       2)
+   :melee-animation-1         (ie/word       2)
+   :melee-animation-2         (ie/word       2)
+   :melee-animation-3         (ie/word       2)
+   :is-arrow?                 (ie/word       2)
+   :is-bolt?                  (ie/word       2)
+   :is-bullet?                (ie/word       2)
+   ])
+;; NOTE: strref = int reference in dialog.tlk, resref = 8 byte ascii w/ garbage
+;; char array = X byte ascii, everything else = little endian values
+(def header-frame (apply c/ordered-map header-spec))
+
+
+(def ext-header-frame
+  (c/ordered-map
+   :x :byte))
 
 ;; FIXME: Probably read directly into the java.nio.HeapByteBuffer this creates,
 ;; instead of slurping and then translating
