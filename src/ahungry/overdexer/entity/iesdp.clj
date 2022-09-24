@@ -4,11 +4,13 @@
    [gloss.io :as io]))
 
 (defn _char-array [n]
-  (c/string :ascii :length n))
+  (c/string :utf-8 :length n))
 
 (defn strref [_] {:type :strref :val :uint32-be})
 
-(defn resref [n] (_char-array n))
+;; FIXME: SUPPOSEDLY this is a null terminated string
+;; But quite a few records fail to parse it into readable values...
+(defn resref [n] (repeat 8 :byte))
 
 (defn _byte [_] :byte)
 
