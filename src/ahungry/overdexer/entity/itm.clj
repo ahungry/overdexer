@@ -130,13 +130,23 @@
    (fn [x] x)
    ))
 
-;; FIXME: Probably read directly into the java.nio.HeapByteBuffer this creates,
-;; instead of slurping and then translating
-(defn get-item [s]
-  (let [content (slurp (str "/home/mcarter/bgee/bgee2/override/" s))]
+;; The BG files need the ISO-8859-1 encoding - ascii and utf-8 didn't work out...
+(defn get-item-x [s]
+  (let [content (slurp (str "/home/mcarter/bgee/bgee2/override/" s) :encoding "ISO8859-1")]
     (->
-     (java.nio.ByteBuffer/wrap (.getBytes content java.nio.charset.StandardCharsets/US_ASCII))
+     (java.nio.ByteBuffer/wrap (.getBytes content java.nio.charset.StandardCharsets/ISO_8859_1))
      (.order java.nio.ByteOrder/LITTLE_ENDIAN))))
+
+(defn get-item [s]
+  (with-open
+    [in-stream (clojure.java.io/input-stream
+                (str "/home/mcarter/bgee/bgee2/override/" s))]
+    (->
+     (java.nio.ByteBuffer/wrap (.readAllBytes in-stream))
+     (.order java.nio.ByteOrder/LITTLE_ENDIAN))))
+
+(defn get-proper-byte []
+  (assert (= 0xAC (.get (.slice (get-item "qdmfist.itm") 8 1) 0))))
 
 ;; I think multiple iteration/offsets may be required
 ;; Or we'll have to go beyond the tool and parse programmatically
