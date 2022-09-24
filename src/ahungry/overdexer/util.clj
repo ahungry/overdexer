@@ -1,4 +1,6 @@
-(ns ahungry.overdexer.util)
+(ns ahungry.overdexer.util
+  (:require
+   [clojure.java.io]))
 
 ;; https://www.geeksforgeeks.org/bit-manipulation-swap-endianness-of-a-number/
 ;; 5376 -> 21 // 0x1500 -> 0x0015
@@ -45,3 +47,12 @@
 (defn get-resref [bytes]
   (let [nul (.indexOf bytes 0)]
     (bytes->string (if (> nul -1) (subvec bytes 0 nul) bytes))))
+
+(defn glob-dir [dir rx]
+  (let [directory (clojure.java.io/file dir)
+        files (file-seq directory)]
+    (->> files
+         (map #(.getName %))
+         (filter #(re-matches rx %)))))
+
+(def glob (partial glob-dir "/home/mcarter/bgee/bgee2/override/"))

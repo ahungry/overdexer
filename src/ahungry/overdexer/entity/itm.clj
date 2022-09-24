@@ -5,6 +5,7 @@
    [ahungry.overdexer.util :as util]
    [clojure.java.jdbc :as j]
    [clojure.java.io]
+   [clojure.string]
    [gloss.core :as c]
    [gloss.io :as io]))
 
@@ -260,9 +261,33 @@
          (take 1)
          )))
 
-;; (j/query db ["select * from x"])
+(defn key->column [s]
+  (clojure.string/replace
+   (clojure.string/replace s #"^:" "") #"[^A-Za-z0-9]" "_"))
 
-(defn make-table [db ]
-  (j/execute! db (j/create-table-ddl "itm" [[:name "text"]] {:conditional? true})))
+(defn spec->columns [spec]
+  (map (fn [k]
+         [(key->column k) "text"]) (keys (apply assoc {} spec))))
 
-(j/query db ["select * from itm"])
+(defn make-table-from-spec [db name spec]
+  (let [ddl (j/create-table-ddl
+             name
+             (conj (spec->columns spec) ["pkid" "text" "primary_key"])
+             {:conditional? true})]
+    (prn ddl)
+    (j/execute! db ddl)))
+
+(make-table-from-spec db "itm_header" header-spec)
+
+(defn batch-import
+  "Run a bunch of inserts with special optimizations for sqlite3 db."
+  [name rows]
+  (j/with-db-transaction [t-con db]
+    (j/execute! db "PRAGMA synchronous = OFF")
+    (j/query db "PRAGMA journal_mode = MEMORY")
+    (j/insert-multi! t-con name rows)))
+
+(defn index-itm []
+  (->> (util/glob #".*\.itm$")
+       (map parse-item)
+       (map :header)))
