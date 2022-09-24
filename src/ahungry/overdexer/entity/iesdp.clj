@@ -3,12 +3,12 @@
    [gloss.core :as c]
    [gloss.io :as io]))
 
-(defn char-array [n]
+(defn _char-array [n]
   (c/string :ascii :length n))
 
 (defn strref [_] {:type :strref :val :uint32-be})
 
-(defn resref [n] (char-array n))
+(defn resref [n] (_char-array n))
 
 (defn _byte [_] :byte)
 

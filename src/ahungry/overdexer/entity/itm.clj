@@ -16,15 +16,15 @@
 
 (def header-spec
   [
-   :signature                  (ie/char-array 4)
-   :version                    (ie/char-array 4)
+   :signature                  (ie/_char-array 4)
+   :version                    (ie/_char-array 4)
    :unidentified-name          (ie/strref     4)
    :identified-name            (ie/strref     4)
    :replacement-item           (ie/resref     8)
    :flags                      (ie/dword      4)
    :item-type                  (ie/word       2)
    :usability-bitmask          (ie/dword      4)
-   :item-animation             (ie/char-array 2)
+   :item-animation             (ie/_char-array 2)
    :min-level                  (ie/word       2)
    :min-strength               (ie/word       2)
    :min-strength-bonus         (ie/_byte      1)
@@ -161,6 +161,7 @@
 (defn feature-blocks-slice-bytes [bytes header iter]
   (.slice bytes (+ (:offset-to-feature-blocks header) (* iter 48)) 48))
 
+;; FIXME: Failing on sw1h03.itm - WHY?
 (defn parse-item [s]
   (let [bytes (get-item s)]
     (let [header (io/decode header-frame (.slice bytes 0 0x72))]
@@ -214,15 +215,18 @@
 
 (defn is-enchanted?
   "Check if enchantment is beyond some value."
-  [file]
-  (let [name (.getName file)
-        item (test-item-header name)
-        enchantment (:enchantment item)]
-    (> (or enchantment 0) 6)))
+  [name]
+  (let [item (parse-item name)
+        enchantment (:enchantment (:header item))]
+    (> (or enchantment 0) 5)))
 
 (defn apply-enchantment-filters [file]
-  (when (and (re-matches #".*\.itm$" (.getName file))
-           (is-enchanted? file)) file))
+  (try
+    (when (and (re-matches #".*\.itm$" (.getName file))
+               (is-enchanted? (.getName file))) file)
+    (catch Exception _
+      nil
+      )))
 
 (defn get-item-files
   "Pull out all items that match a given query condition"

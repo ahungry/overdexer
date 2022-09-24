@@ -3,9 +3,6 @@
    [ahungry.overdexer.entity.itm :as itm])
   (:gen-class))
 
-(defn x []
-  (itm/foo))
-
 (defn greet
   "Callable entry point to the application."
   [data]
