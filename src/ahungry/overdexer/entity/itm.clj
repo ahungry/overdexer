@@ -281,13 +281,14 @@
 (defn make-table-from-spec [db name spec]
   (let [ddl (j/create-table-ddl
              name
-             (conj (spec->columns spec) ["pkid" "text" "primary_key unique"])
+             (conj (spec->columns spec) ["pkid" "text" "primary_key"])
              {:conditional? true})]
     (prn ddl)
     (j/execute! db ddl)))
 
 (make-table-from-spec db "itm_header" header-spec)
 (make-table-from-spec db "itm_ext_header" ext-header-spec)
+(make-table-from-spec db "itm_feature_block" feature-block-spec)
 
 (defn rows-normalizer [rows]
   (clojure.walk/postwalk
@@ -305,17 +306,22 @@
   (j/with-db-transaction [t-con db]
     (j/insert-multi! t-con "itm_header" (map rows-normalizer (map :header rows)))
     ;; Now insert all the related data rows
-    (j/insert-multi! t-con "itm_ext_header" (map rows-normalizer (flatten (map :ext-headers rows)))))
-  )
+    (j/insert-multi! t-con "itm_ext_header" (map rows-normalizer (flatten (map :ext-headers rows))))
+    (j/insert-multi! t-con "itm_feature_block" (map rows-normalizer (flatten (map :feature-blocks rows))))
+    ))
 
 (defn index-itm []
   (j/delete! db "itm_header" ["1 = 1"])
   (j/delete! db "itm_ext_header" ["1 = 1"])
+  (j/delete! db "itm_feature_block" ["1 = 1"])
   (->> (util/glob #".*\.itm$")
        (pmap (fn [name]
+               ;; Add the filename to each resource we speced out
                (let [parsed (parse-item name)]
                  {:header (conj (:header parsed) {:pkid name})
-                  :ext-headers (map (fn [x] (conj x {:pkid name})) (:ext-headers parsed))})))
+                  :ext-headers (map (fn [x] (conj x {:pkid name})) (:ext-headers parsed))
+                  :feature-blocks (map (fn [x] (conj x {:pkid name})) (:feature-blocks parsed))
+                  })))
        batch-import
        doall)
   true)
