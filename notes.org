@@ -9,3 +9,15 @@ https://github.com/clj-commons/gloss/wiki/Introduction
 Try out these options
 https://github.com/derekchiang/Clojure-Watch
 https://github.com/juxt/dirwatch
+
+* It looks like NI accommodates extra bytes on the end of a record
+This usually seems to be due to misindexing in the header (for
+instance, sw1h03.itm - Kondar - I end up with just enough bytes at the
+end of the file for one more item effect).
+
+NI highlights this in gray instead of the usual green.
+
+Similarly, resref entries are pure garbage on some (maybe a mod uses
+that memory area for some special purpose) - it breaks the parser
+unless I take simple bytes - in NI they just get zeroed out to the
+null bytes in their hex editor.
