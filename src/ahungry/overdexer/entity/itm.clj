@@ -155,20 +155,6 @@
     {:headers (io/decode header-frame (.slice bytes 0 0x72))
      :ext-headers (io/decode itm-frame (.slice bytes 0 (+ 0x72 56)))}))
 
-(defn byte-array->endian [endian bytes]
-  (let [bytelen (count bytes)
-        bb (java.nio.ByteBuffer/allocate bytelen)]
-    (doall (map (fn [byt] (.put bb (byte byt))) bytes))
-    (.order bb endian)
-    (cond
-      (>= bytelen 8) (.getLong bb 0)
-      (>= bytelen 4) (.getInt bb 0)
-      (>= bytelen 2) (.getShort bb 0)
-      :else (.getByte bb 0))))
-
-(def byte-array->le (partial byte-array->endian java.nio.ByteOrder/LITTLE_ENDIAN))
-(def byte-array->be (partial byte-array->endian java.nio.ByteOrder/BIG_ENDIAN))
-
 (defn ext-headers-slice-bytes [bytes header iter]
   (.slice bytes (+ (:offset-to-extended-headers header) (* iter 56)) 56))
 
@@ -225,21 +211,6 @@
   (let [bytes (get-item s)]
     (prn bytes)
     (io/decode ext-header-frame (.slice bytes 0x72 56))))
-
-(defn foo []
-  (prn "Yay"))
-
-(defn d []
-  (io/decode header-frame (get-item "qdmfist.itm")))
-
-(defn e []
-  (io/encode header-frame {:name "matt"}))
-
-(defn out-to-file []
-  (let [records [{:name "matt"}]]
-    (with-open
-      [out-stream (clojure.java.io/output-stream "file:///tmp/x.log")]
-      (io/encode-to-stream header-frame out-stream records))))
 
 (defn is-enchanted?
   "Check if enchantment is beyond some value."

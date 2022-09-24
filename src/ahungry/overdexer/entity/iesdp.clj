@@ -4,7 +4,7 @@
    [gloss.io :as io]))
 
 (defn char-array [n]
-  (c/string :utf-8 :length n))
+  (c/string :ascii :length n))
 
 (defn strref [_] {:type :strref :val :uint32-be})
 
