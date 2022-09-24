@@ -10,7 +10,7 @@
 
 ;; FIXME: SUPPOSEDLY this is a null terminated string
 ;; But quite a few records fail to parse it into readable values...
-(defn resref [n] (repeat 8 :byte))
+(defn resref [n] {:type :resref :val (repeat 8 :byte)})
 
 (defn _byte [_] :byte)
 

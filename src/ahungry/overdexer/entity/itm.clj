@@ -2,6 +2,7 @@
   (:require
    [ahungry.overdexer.entity.db :refer [db]]
    [ahungry.overdexer.entity.iesdp :as ie]
+   [ahungry.overdexer.util :as util]
    [clojure.java.jdbc :as j]
    [clojure.java.io]
    [gloss.core :as c]
@@ -248,6 +249,16 @@
          (map apply-enchantment-filters)
          (filter (complement nil?))
          (map #(.getName %)))))
+
+(defn find-items-with-garbage-name []
+  (let [directory (clojure.java.io/file "/home/mcarter/bgee/bgee2/override")
+        files (file-seq directory)]
+    (->> files
+         (map #(.getName %))
+         (filter #(re-matches #".*\.itm$" %))
+         (pmap parse-item)
+         (take 1)
+         )))
 
 ;; (j/query db ["select * from x"])
 

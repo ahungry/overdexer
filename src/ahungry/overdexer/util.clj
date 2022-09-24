@@ -15,10 +15,22 @@
      (bit-shift-left rightmid 8)
      (bit-shift-left rightmost 0))))
 
-(defn byte-array->endian [endian bytes]
+(defn bytes->bb [bytes]
   (let [bytelen (count bytes)
         bb (java.nio.ByteBuffer/allocate bytelen)]
     (doall (map (fn [byt] (.put bb (byte byt))) bytes))
+    bb))
+
+(defn bytes->string
+  "Get the array of numbers (bytes) and turn into a string."
+  [bytes]
+  (let [bb (bytes->bb bytes)]
+    (try (String. (.array bb))
+         (catch Exception _ ""))))
+
+(defn byte-array->endian [endian bytes]
+  (let [bytelen (count bytes)
+        bb (bytes->bb bytes)]
     (.order bb endian)
     (cond
       (>= bytelen 8) (.getLong bb 0)
@@ -28,3 +40,8 @@
 
 (def byte-array->le (partial byte-array->endian java.nio.ByteOrder/LITTLE_ENDIAN))
 (def byte-array->be (partial byte-array->endian java.nio.ByteOrder/BIG_ENDIAN))
+
+;; Some of these have values out of range or screw it up in other ways...
+(defn get-resref [bytes]
+  (let [nul (.indexOf bytes 0)]
+    (bytes->string (if (> nul -1) (subvec bytes 0 nul) bytes))))
