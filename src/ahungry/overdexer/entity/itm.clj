@@ -89,17 +89,46 @@
    :is-bolt?                  (ie/word   2)
    :is-bullet?                (ie/word   2)
    ])
+
+(def feature-block-spec
+  [
+   :opcode-number         (ie/word   2)
+   :target-type           (ie/_char  1)
+   :power                 (ie/_char  1)
+   :parameter-1           (ie/dword  4)
+   :parameter-2           (ie/dword  4)
+   :timing-mode           (ie/_char  1)
+   :dispel-resistance     (ie/_char  1)
+   :duration              (ie/dword  4)
+   :probability-1         (ie/_char  1)
+   :probability-2         (ie/_char  1)
+   :resource              (ie/resref 8)
+   :dice-thrown-max-level (ie/dword  4)
+   :dice-sides-min-level  (ie/dword  4)
+   :saving-throw-type     (ie/dword  4)
+   :saving-throw-bonus    (ie/dword  4)
+   :tobex-stacking-id     (ie/dword  4)
+   ])
+
 ;; NOTE: strref = int reference in dialog.tlk, resref = 8 byte ascii w/ garbage
 ;; char array = X byte ascii, everything else = little endian values
 (def header-frame (apply c/ordered-map header-spec))
 (def ext-header-frame (apply c/ordered-map ext-header-spec))
+(def feature-block-frame (apply c/ordered-map feature-block-spec))
 
 ;; (c/defcodec itm-frame [header-frame (c/repeated ext-header-frame)])
-(def itm-frame
+(def itm-frame-x
   (c/ordered-map
    :header header-frame
-   :ext-headers ext-header-frame))
+   :ext-headers (c/repeated ext-header-frame :prefix :none)))
 
+(def itm-frame
+  (c/header
+   header-frame
+   (fn [y]
+     (c/repeated ext-header-frame :prefix :none))
+   (fn [x] x)
+   ))
 
 ;; FIXME: Probably read directly into the java.nio.HeapByteBuffer this creates,
 ;; instead of slurping and then translating
@@ -109,10 +138,35 @@
      (java.nio.ByteBuffer/wrap (.getBytes content java.nio.charset.StandardCharsets/US_ASCII))
      (.order java.nio.ByteOrder/LITTLE_ENDIAN))))
 
+;; I think multiple iteration/offsets may be required
+;; Or we'll have to go beyond the tool and parse programmatically
 (defn test-item-header [s]
   (let [bytes (get-item s)]
-    (prn bytes)
-    (io/decode itm-frame (.slice bytes 0 (+ 0x72 56)))))
+    {:headers (io/decode header-frame (.slice bytes 0 0x72))
+     :ext-headers (io/decode itm-frame (.slice bytes 0 (+ 0x72 56)))}))
+
+(defn ext-headers-slice-bytes [bytes header iter]
+  (.slice bytes (+ (:offset-to-extended-headers header) (* iter 56)) 56))
+
+(defn feature-blocks-slice-bytes [bytes header iter]
+  (.slice bytes (+ (:offset-to-feature-blocks header) (* iter 48)) 48))
+
+(defn parse-item [s]
+  (let [bytes (get-item s)]
+    (let [header (io/decode header-frame (.slice bytes 0 0x72))]
+      {:header header
+
+       :ext-headers
+       (map (fn [i] (io/decode ext-header-frame (ext-headers-slice-bytes bytes header i)))
+            (range (:count-of-extended-headers header) ))
+
+       :feature-blocks
+       (map (fn [i] (io/decode feature-block-frame (feature-blocks-slice-bytes bytes header i)))
+            (range (:count-of-feature-blocks header)))
+
+       })
+    )
+  )
 
 (defn test-ext-header [s]
   (let [bytes (get-item s)]
