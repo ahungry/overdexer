@@ -6,6 +6,7 @@
    [clojure.java.jdbc :as j]
    [clojure.java.io]
    [clojure.string]
+   [clojure.walk]
    [gloss.core :as c]
    [gloss.io :as io]))
 
@@ -262,12 +263,20 @@
          )))
 
 (defn key->column [s]
-  (clojure.string/replace
-   (clojure.string/replace s #"^:" "") #"[^A-Za-z0-9]" "_"))
+  (clojure.string/replace (name s) #"[^A-Za-z0-9]" "_"))
+
+(defn val->column-type [x]
+  (if (or (> (.indexOf [:byte :uint16-le :uint32-le] x) 0)
+          (= (:type x) :strref))
+    "int"
+    "text"))
 
 (defn spec->columns [spec]
-  (map (fn [k]
-         [(key->column k) "text"]) (keys (apply assoc {} spec))))
+  (map (fn [k v]
+         [(key->column k) (val->column-type v)])
+       (keys (apply assoc {} spec))
+       (vals (apply assoc {} spec))
+       ))
 
 (defn make-table-from-spec [db name spec]
   (let [ddl (j/create-table-ddl
@@ -279,15 +288,27 @@
 
 (make-table-from-spec db "itm_header" header-spec)
 
+(defn rows-normalizer [rows]
+  (clojure.walk/postwalk
+   (fn [x]
+     (cond (keyword? x) (key->column x)
+           (get x "val") (let [val (get x "val")] (if (vector? val) (str val) val))
+           :else x)) rows))
+
 (defn batch-import
   "Run a bunch of inserts with special optimizations for sqlite3 db."
   [name rows]
   (j/with-db-transaction [t-con db]
     (j/execute! db "PRAGMA synchronous = OFF")
     (j/query db "PRAGMA journal_mode = MEMORY")
-    (j/insert-multi! t-con name rows)))
+    (j/insert-multi! t-con name (rows-normalizer rows))))
 
 (defn index-itm []
   (->> (util/glob #".*\.itm$")
-       (map parse-item)
-       (map :header)))
+       (pmap (fn [name]
+               (let [parsed (parse-item name)]
+                 (assoc-in parsed [:header] (conj (:header parsed) {:pkid name})))))
+       (map :header)
+       (batch-import "itm_header")
+       )
+  true)
