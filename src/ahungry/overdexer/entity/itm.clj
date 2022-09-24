@@ -160,10 +160,10 @@
 (def byte-array->be (partial byte-array->endian java.nio.ByteOrder/BIG_ENDIAN))
 
 (defn ext-headers-slice-bytes [bytes header iter]
-  (.slice bytes (+ (byte-array->le (:offset-to-extended-headers header)) (* iter 56)) 56))
+  (.slice bytes (+ (:offset-to-extended-headers header) (* iter 56)) 56))
 
 (defn feature-blocks-slice-bytes [bytes header iter]
-  (.slice bytes (+ (byte-array->le (:offset-to-feature-blocks header)) (* iter 48)) 48))
+  (.slice bytes (+ (:offset-to-feature-blocks header) (* iter 48)) 48))
 
 (defn parse-item [s]
   (let [bytes (get-item s)]
@@ -172,11 +172,11 @@
 
        :ext-headers
        (map (fn [i] (io/decode ext-header-frame (ext-headers-slice-bytes bytes header i)))
-            (range (byte-array->le (:count-of-extended-headers header))))
+            (range (:count-of-extended-headers header)))
 
        :feature-blocks
        (map (fn [i] (io/decode feature-block-frame (feature-blocks-slice-bytes bytes header i)))
-            (range (byte-array->le (:count-of-feature-blocks header))))
+            (range (:count-of-feature-blocks header)))
 
        })
     )
@@ -204,9 +204,9 @@
 ;; some special care
 (defn parsed->file [filename parsed]
   (with-open
-    [out-stream (clojure.java.io/output-stream filename)]
-    (let [byte-buffers (parsed->flatbytes parsed)
-          channel (java.nio.channels.Channels/newChannel out-stream)]
+    [out-stream (clojure.java.io/output-stream filename :encoding "ASCII")
+     channel (java.nio.channels.Channels/newChannel out-stream)]
+    (let [byte-buffers (parsed->flatbytes parsed)]
       (doall (map (fn [byte-buffer]
                     (.write channel byte-buffer)) byte-buffers))
       true)))
