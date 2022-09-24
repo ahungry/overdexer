@@ -168,6 +168,35 @@
     )
   )
 
+;; Due to how we are parsing, we need to do 3 types of encoding
+;; Generate the header (TODO: Keep sizing synced to ext-headers/feature-blocks)
+;; Encode each ext-header and then merge all the byte buffers
+;; Encode each feature-blocks and then merge all the byte buffers
+(defn parsed->bytes [parsed]
+  {
+   :header (io/encode header-frame (:header parsed))
+   :ext-headers (map (fn [p] (io/encode ext-header-frame p)) (:ext-headers parsed))
+   :feature-blocks (map (fn [p] (io/encode feature-block-frame p)) (:feature-blocks parsed))
+   })
+
+(defn parsed->flatbytes [parsed]
+  (let [bytes (parsed->bytes parsed)]
+    (flatten [(:header bytes) (:ext-headers bytes) (:feature-blocks bytes)])))
+
+(defn get-allocation-size [byte-buffers]
+  (reduce (fn [acc bb] (+ acc (.limit bb))) 0 byte-buffers))
+
+;; FIXME: This is *almost* working - either the codec is out of order, or the endian-ness needs
+;; some special care
+(defn parsed->file [filename parsed]
+  (with-open
+    [out-stream (clojure.java.io/output-stream filename)]
+    (let [byte-buffers (parsed->flatbytes parsed)
+          channel (java.nio.channels.Channels/newChannel out-stream)]
+      (doall (map (fn [byte-buffer]
+                    (.write channel byte-buffer)) byte-buffers))
+      true)))
+
 (defn test-ext-header [s]
   (let [bytes (get-item s)]
     (prn bytes)
