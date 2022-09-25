@@ -10,7 +10,12 @@
    [gloss.core :as c]
    [gloss.io :as io]))
 
+;; NOTE: This may be a bit trickier to re-assemble into a proper output format
+;; than the items, however I don't see any reason I would use this over the
+;; weidu TRA stuff for modifying strings.
+
 ;; https://gibberlings3.github.io/iesdp/file_formats/ie_formats/tlk_v1.htm
+
 (def header-spec
   [
    :signature                (ie/_char-array 4)
