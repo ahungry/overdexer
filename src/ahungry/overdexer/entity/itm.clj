@@ -1,6 +1,6 @@
 (ns ahungry.overdexer.entity.itm
   (:require
-   [ahungry.overdexer.entity.db :refer [db]]
+   [ahungry.overdexer.entity.db :as db]
    [ahungry.overdexer.entity.iesdp :as ie]
    [ahungry.overdexer.util :as util]
    [clojure.java.jdbc :as j]
@@ -252,78 +252,27 @@
          (filter (complement nil?))
          (map #(.getName %)))))
 
-(defn find-items-with-garbage-name []
-  (let [directory (clojure.java.io/file "/home/mcarter/bgee/bgee2/override")
-        files (file-seq directory)]
-    (->> files
-         (map #(.getName %))
-         (filter #(re-matches #".*\.itm$" %))
-         (pmap parse-item)
-         (take 1)
-         )))
-
-(defn key->column [s]
-  (clojure.string/replace (name s) #"[^A-Za-z0-9]" "_"))
-
-(defn val->column-type [x]
-  (if (or (> (.indexOf [:byte :uint16-le :uint32-le] x) 0)
-          (= (:type x) :strref))
-    "int"
-    "text"))
-
-(defn spec->columns [spec]
-  (map (fn [k v]
-         [(key->column k) (val->column-type v)])
-       (keys (apply assoc {} spec))
-       (vals (apply assoc {} spec))
-       ))
-
-(defn make-table-from-spec [db name spec]
-  (let [ddl (j/create-table-ddl
-             name
-             (conj (spec->columns spec) ["pkid" "text" "primary_key"])
-             {:conditional? true})]
-    (prn ddl)
-    (j/execute! db ddl)))
-
-(make-table-from-spec db "itm_header" header-spec)
-(make-table-from-spec db "itm_ext_header" ext-header-spec)
-(make-table-from-spec db "itm_feature_block" feature-block-spec)
-
-(defn normalize-keyword [kw]
-  (key->column kw))
-
-(defn normalize-type [m]
-  (cond
-    (= "resref" (get m "type")) (util/get-resref (get m "val"))
-    (= "strref" (get m "type")) (get m "val")
-    (vector? (get m "val")) (str val)
-    :else val))
-
-(defn rows-normalizer [rows]
-  (clojure.walk/postwalk
-   (fn [x]
-     (cond (keyword? x) (normalize-keyword x)
-           (get x "type") (normalize-type x)
-           :else x)) rows))
+(db/make-table-from-spec db/db "itm_header" header-spec "text")
+(db/make-table-from-spec db/db "itm_ext_header" ext-header-spec "text")
+(db/make-table-from-spec db/db "itm_feature_block" feature-block-spec "text")
 
 (defn batch-import
   "Run a bunch of inserts with special optimizations for sqlite3 db."
   [rows]
-  (j/execute! db "PRAGMA synchronous = OFF")
-  (j/query db "PRAGMA journal_mode = MEMORY")
+  (j/execute! db/db "PRAGMA synchronous = OFF")
+  (j/query db/db "PRAGMA journal_mode = MEMORY")
   ;; Insert all the top level data rows
-  (j/with-db-transaction [t-con db]
-    (j/insert-multi! t-con "itm_header" (map rows-normalizer (map :header rows)))
+  (j/with-db-transaction [t-con db/db]
+    (j/insert-multi! t-con "itm_header" (map db/rows-normalizer (map :header rows)))
     ;; Now insert all the related data rows
-    (j/insert-multi! t-con "itm_ext_header" (map rows-normalizer (flatten (map :ext-headers rows))))
-    (j/insert-multi! t-con "itm_feature_block" (map rows-normalizer (flatten (map :feature-blocks rows))))
+    (j/insert-multi! t-con "itm_ext_header" (map db/rows-normalizer (flatten (map :ext-headers rows))))
+    (j/insert-multi! t-con "itm_feature_block" (map db/rows-normalizer (flatten (map :feature-blocks rows))))
     ))
 
 (defn index-itm []
-  (j/delete! db "itm_header" ["1 = 1"])
-  (j/delete! db "itm_ext_header" ["1 = 1"])
-  (j/delete! db "itm_feature_block" ["1 = 1"])
+  (j/delete! db/db "itm_header" ["1 = 1"])
+  (j/delete! db/db "itm_ext_header" ["1 = 1"])
+  (j/delete! db/db "itm_feature_block" ["1 = 1"])
   (->> (util/glob #".*\.itm$")
        (pmap (fn [name]
                ;; Add the filename to each resource we speced out

@@ -1,6 +1,6 @@
 (ns ahungry.overdexer.entity.dialog
   (:require
-   [ahungry.overdexer.entity.db :refer [db]]
+   [ahungry.overdexer.entity.db :as db]
    [ahungry.overdexer.entity.iesdp :as ie]
    [ahungry.overdexer.util :as util]
    [clojure.java.jdbc :as j]
@@ -55,8 +55,9 @@
      (map (fn [i]
             (let [entry (io/decode entry-frame (.slice dialog (+ 18 (* i 26)) 26))]
               {:entry entry
+               :pkid (:offset entry)
                :string (io/decode
-                        (c/string :utf-8 :length (:length entry))
+                        (ie/safe-string (:length entry))
                         (.slice dialog
                                 (+ (:offset-to-string-data header)
                                    (:offset entry))
@@ -65,3 +66,20 @@
           (range (:number-of-strref-entries header)))
      }
     ))
+
+(db/make-table-from-spec db/db "dialog" (conj entry-spec "string" nil) "int")
+
+(defn batch-import [rows]
+  (j/execute! db/db "PRAGMA synchronous = OFF")
+  (j/query db/db "PRAGMA journal_mode = MEMORY")
+  ;; Insert all the top level data rows
+  (j/with-db-transaction [t-con db/db]
+    (j/insert-multi! t-con "dialog" (map db/rows-normalizer rows))))
+
+(defn index-dialog []
+  (j/delete! db/db "dialog" ["1 = 1"])
+  (->> (parse-dialog)
+       :entries
+       (pmap (fn [entry] (conj (:entry entry) {:pkid (:pkid entry)} {:string (:string entry)})))
+       batch-import
+       ))

@@ -19,3 +19,5 @@
 (defn dword [_] :uint32-le)
 
 (defn _char [_] :byte)
+
+(defn safe-string [n] {:type :resref :val (repeat n :byte)})
