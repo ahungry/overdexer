@@ -13,11 +13,9 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (prn "Indexing the items...")
+  (prn "Indexing the items, please be patient (takes ~30s or so)...")
   (time (itm/index-itm))
+  (prn "Indexing the dialog.tlk, please be patient (takes ~15m or so? oof)")
   (time (dialog/index-dialog))
-  ;; (prn "Searching for the items...")
-  ;; (time (prn (count (itm/get-item-files-sequentially))))
-  ;; (time (prn (count (itm/get-item-files))))
   (greet {:name (first args)})
   (System/exit 0))

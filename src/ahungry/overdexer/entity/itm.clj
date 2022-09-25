@@ -119,12 +119,6 @@
 (def ext-header-frame (apply c/ordered-map ext-header-spec))
 (def feature-block-frame (apply c/ordered-map feature-block-spec))
 
-;; (c/defcodec itm-frame [header-frame (c/repeated ext-header-frame)])
-(def itm-frame-x
-  (c/ordered-map
-   :header header-frame
-   :ext-headers (c/repeated ext-header-frame :prefix :none)))
-
 (def itm-frame
   (c/header
    header-frame
@@ -210,47 +204,6 @@
       (doall (map (fn [byte-buffer]
                     (.write channel byte-buffer)) byte-buffers))
       true)))
-
-(defn test-ext-header [s]
-  (let [bytes (get-item s)]
-    (prn bytes)
-    (io/decode ext-header-frame (.slice bytes 0x72 56))))
-
-(defn is-enchanted?
-  "Check if enchantment is beyond some value."
-  [name]
-  (let [item (parse-item name)
-        enchantment (:enchantment (:header item))]
-    (> (or enchantment 0) 5)))
-
-(defn apply-enchantment-filters [file]
-  (try
-    (when (and (re-matches #".*\.itm$" (.getName file))
-               (is-enchanted? (.getName file))) file)
-    (catch Exception e
-      (prn (str "Failed to parse: " (.getName file) e))
-      nil
-      )))
-
-(defn get-item-files
-  "Pull out all items that match a given query condition"
-  []
-  (let [directory (clojure.java.io/file "/home/mcarter/bgee/bgee2/override")
-        files (file-seq directory)]
-    (->> files
-         (pmap apply-enchantment-filters)
-         (filter (complement nil?))
-         (map #(.getName %)))))
-
-(defn get-item-files-sequentially
-  "Pull out all items that match a given query condition"
-  []
-  (let [directory (clojure.java.io/file "/home/mcarter/bgee/bgee2/override")
-        files (file-seq directory)]
-    (->> files
-         (map apply-enchantment-filters)
-         (filter (complement nil?))
-         (map #(.getName %)))))
 
 (db/make-table-from-spec db/db "itm_header" header-spec "text")
 (db/make-table-from-spec db/db "itm_ext_header" ext-header-spec "text")
