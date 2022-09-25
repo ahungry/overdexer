@@ -26,9 +26,17 @@
 (defn bytes->string
   "Get the array of numbers (bytes) and turn into a string."
   [bytes]
-  (let [bb (bytes->bb bytes)]
-    (try (String. (.array bb))
-         (catch Exception _ ""))))
+  (try
+    (let [bb (bytes->bb bytes)]
+      (String. (.array bb)))
+    (catch Exception _ "")))
+
+;; Some of these have values out of range or screw it up in other ways...
+(defn get-resref [bytes]
+  (if (vector? bytes)
+    (let [nul (.indexOf bytes 0)]
+      (bytes->string (if (> nul -1) (subvec bytes 0 nul) bytes)))
+    ""))
 
 (defn byte-array->endian [endian bytes]
   (let [bytelen (count bytes)
@@ -42,11 +50,6 @@
 
 (def byte-array->le (partial byte-array->endian java.nio.ByteOrder/LITTLE_ENDIAN))
 (def byte-array->be (partial byte-array->endian java.nio.ByteOrder/BIG_ENDIAN))
-
-;; Some of these have values out of range or screw it up in other ways...
-(defn get-resref [bytes]
-  (let [nul (.indexOf bytes 0)]
-    (bytes->string (if (> nul -1) (subvec bytes 0 nul) bytes))))
 
 (defn glob-dir [dir rx]
   (let [directory (clojure.java.io/file dir)

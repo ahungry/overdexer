@@ -290,11 +290,21 @@
 (make-table-from-spec db "itm_ext_header" ext-header-spec)
 (make-table-from-spec db "itm_feature_block" feature-block-spec)
 
+(defn normalize-keyword [kw]
+  (key->column kw))
+
+(defn normalize-type [m]
+  (cond
+    (= "resref" (get m "type")) (util/get-resref (get m "val"))
+    (= "strref" (get m "type")) (get m "val")
+    (vector? (get m "val")) (str val)
+    :else val))
+
 (defn rows-normalizer [rows]
   (clojure.walk/postwalk
    (fn [x]
-     (cond (keyword? x) (key->column x)
-           (get x "val") (let [val (get x "val")] (if (vector? val) (str val) val))
+     (cond (keyword? x) (normalize-keyword x)
+           (get x "type") (normalize-type x)
            :else x)) rows))
 
 (defn batch-import
