@@ -60,7 +60,7 @@
      (map (fn [i]
             (let [entry (io/decode entry-frame (.slice dialog (+ 18 (* i 26)) 26))]
               {:entry entry
-               :pkid (:offset entry)
+               :pkid i
                :string (io/decode
                         (ie/safe-string (:length entry))
                         (.slice dialog

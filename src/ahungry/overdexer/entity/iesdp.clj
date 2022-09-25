@@ -6,7 +6,7 @@
 (defn _char-array [n]
   (c/string :utf-8 :length n))
 
-(defn strref [_] {:type :strref :val :uint32-be})
+(defn strref [_] {:type :strref :val :uint32-le})
 
 ;; FIXME: SUPPOSEDLY this is a null terminated string
 ;; But quite a few records fail to parse it into readable values...

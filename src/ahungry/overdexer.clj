@@ -15,7 +15,7 @@
   [& args]
   (prn "Indexing the items, please be patient (takes ~30s or so)...")
   (time (itm/index-itm))
-  (prn "Indexing the dialog.tlk, please be patient (takes ~15m or so? oof)")
+  (prn "Indexing the dialog.tlk, please be patient (takes ~5m or so? oof)")
   (time (dialog/index-dialog))
   (greet {:name (first args)})
   (System/exit 0))
