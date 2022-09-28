@@ -4,13 +4,21 @@ An override/ directory indexer for Baldur's Gate (to run some tests on
 mod/tooling and see if I can do anything fun and interesting with
 parsing the binary formats in Clojure).
 
+# Installation
+
+Ensure you have a current copy of Clojure available (clj command).
+Coming soon: An uberjar that'll allow a simple
+`java -jar snapshot.jar` to do this.
+
 # Usage
 
 ## Indexing
 
-To index your files, `make run` (NOTE: At the moment this won't work
-unless you edit the override/ directory path in repo...I need to make
-a CLI argument for the user to pass this in)
+To index your files:
+
+```
+make run DIALOG_DIR=/full/path/to/bgee2/lang/en_US OVERRIDE_DIR=/full/path/to/bgee2/override
+```
 
 ## Querying
 

@@ -236,11 +236,11 @@
 
     ))
 
-(defn index-itm []
+(defn index-itm [override-dir]
   (j/delete! db/db "itm_header" ["1 = 1"])
   (j/delete! db/db "itm_ext_header" ["1 = 1"])
   (j/delete! db/db "itm_feature_block" ["1 = 1"])
-  (->> (util/glob #".*\.itm$")
+  (->> (util/glob-dir override-dir #".*\.itm$")
        (pmap (fn [name]
                ;; Add the filename to each resource we speced out
                (let [parsed (parse-item name)]

@@ -8,14 +8,18 @@
 (defn greet
   "Callable entry point to the application."
   [data]
-  (println (str "Hello, " (or (:name data) "World") "!")))
+  (println (str "Hello, " (or (:override-dir data) "World") "!")))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (prn "Indexing the items, please be patient (takes ~30s or so)...")
-  (time (itm/index-itm))
-  (prn "Indexing the dialog.tlk, please be patient (takes ~5m or so? oof)")
-  (time (dialog/index-dialog))
-  (greet {:name (first args)})
-  (System/exit 0))
+  (let [override-dir (first args)
+        dialog-dir (second args)]
+    (prn {:override-dir override-dir
+          :dialog-dir dialog-dir})
+    (prn "Indexing the items, please be patient (takes ~30s or so)...")
+    (time (itm/index-itm override-dir))
+    (prn "Indexing the dialog.tlk, please be patient (takes ~5m or so? oof)")
+    (time (dialog/index-dialog dialog-dir))
+    ;; (greet {:name (first args)})
+    (System/exit 0)))

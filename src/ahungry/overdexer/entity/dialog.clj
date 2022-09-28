@@ -43,16 +43,18 @@
 (def header-frame (apply c/ordered-map header-spec))
 (def entry-frame (apply c/ordered-map entry-spec))
 
-(defn get-dialog []
+(defn get-dialog [dialog-dir]
   (with-open
     [in-stream (clojure.java.io/input-stream
-                "/home/mcarter/bgee/bgee2/lang/en_US/dialog.tlk")]
+                (str dialog-dir "/dialog.tlk")
+                ;; "/home/mcarter/bgee/bgee2/lang/en_US/dialog.tlk"
+                )]
     (->
      (java.nio.ByteBuffer/wrap (.readAllBytes in-stream))
      (.order java.nio.ByteOrder/LITTLE_ENDIAN))))
 
-(defn parse-dialog []
-  (let [dialog (get-dialog)
+(defn parse-dialog [dialog-dir]
+  (let [dialog (get-dialog dialog-dir)
         header (io/decode header-frame (.slice dialog 0 18))]
     {:header header
 
@@ -81,9 +83,9 @@
     ;; (j/query db/db "PRAGMA journal_mode = MEMORY")
     (j/insert-multi! t-con "dialog" (db/fast-rows-normalizer rows))))
 
-(defn index-dialog []
+(defn index-dialog [dialog-dir]
   (j/delete! db/db "dialog" ["1 = 1"])
-  (->> (parse-dialog)
+  (->> (parse-dialog dialog-dir)
        :entries
        (pmap (fn [entry] (conj (:entry entry) {:pkid (:pkid entry)} {:string (:string entry)})))
        batch-import
