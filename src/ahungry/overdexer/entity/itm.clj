@@ -205,32 +205,36 @@
                     (.write channel byte-buffer)) byte-buffers))
       true)))
 
-(db/make-table-from-spec db/db "itm_header" header-spec "text")
-(db/make-table-from-spec db/db "itm_ext_header" ext-header-spec "text")
-(db/make-table-from-spec db/db "itm_feature_block" feature-block-spec "text")
+(db/make-table-from-spec db/db "itm_header" header-spec "text" "unique")
+(db/make-table-from-spec db/db "itm_ext_header" ext-header-spec "text" "")
+(db/make-table-from-spec db/db "itm_feature_block" feature-block-spec "text" "")
 
 (defn batch-import
   "Run a bunch of inserts with special optimizations for sqlite3 db."
   [rows]
   ;; Insert all the top level data rows
-  (j/with-db-connection [db-con db/db]
-    (j/execute! db-con "PRAGMA synchronous = OFF")
-    (j/query db-con "PRAGMA journal_mode = MEMORY")
+  (j/with-db-transaction [t-con db/db]
 
-    (j/with-db-transaction [t-con db-con]
-      (doall (pvalues
-              (doall (pmap (fn [row] (j/insert! t-con "itm_header" row)) (db/fast-rows-normalizer (map :header rows))))
-              (doall (pmap (fn [row] (j/insert! t-con "itm_ext_header" row)) (db/fast-rows-normalizer (flatten (map :ext-headers rows)))))
-              (doall (pmap (fn [row] (j/insert! t-con "itm_feature_block" row)) (db/fast-rows-normalizer (flatten (map :feature-blocks rows)))))))
-      )
-    ;; (j/insert-multi! t-con "itm_header"
-    ;;                  (db/fast-rows-normalizer (map :header rows)))
-    ;; ;; Now insert all the related data rows
-    ;; (j/insert-multi! t-con "itm_ext_header"
-    ;;                  (db/fast-rows-normalizer (flatten (map :ext-headers rows))))
-    ;; (j/insert-multi! t-con "itm_feature_block"
-    ;;                  (db/fast-rows-normalizer (flatten (map :feature-blocks rows)))))
-  ))
+    (doall (pvalues
+            (j/insert-multi! t-con "itm_header"
+                             (db/fast-rows-normalizer (map :header rows)))
+
+            ;; Now insert all the related data rows
+            ;; (j/insert-multi! t-con "itm_ext_header"
+            ;;                  (db/fast-rows-normalizer (flatten (map :ext-headers rows))))
+
+            (doall (pmap (fn [row-set]
+                           (j/insert-multi! t-con "itm_ext_header" (db/fast-rows-normalizer row-set))
+                           ) (map :ext-headers rows)))
+
+            ;; (j/insert-multi! t-con "itm_feature_block"
+            ;;                  (db/fast-rows-normalizer (flatten (map :feature-blocks rows))))
+
+            (doall (pmap (fn [row-set]
+                           (j/insert-multi! t-con "itm_feature_block" (db/fast-rows-normalizer row-set))
+                           ) (map :feature-blocks rows)))))
+
+    ))
 
 (defn index-itm []
   (j/delete! db/db "itm_header" ["1 = 1"])

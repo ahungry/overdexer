@@ -72,14 +72,14 @@
      }
     ))
 
-(db/make-table-from-spec db/db "dialog" (conj entry-spec "string" nil) "int")
+(db/make-table-from-spec db/db "dialog" (conj entry-spec "string" nil) "int" "unique")
 
 (defn batch-import [rows]
   ;; Insert all the top level data rows
   (j/with-db-transaction [t-con db/db]
-    (j/execute! db/db "PRAGMA synchronous = OFF")
-    (j/query db/db "PRAGMA journal_mode = MEMORY")
-    (j/insert-multi! t-con "dialog" (map db/rows-normalizer rows))))
+    ;; (j/execute! db/db "PRAGMA synchronous = OFF")
+    ;; (j/query db/db "PRAGMA journal_mode = MEMORY")
+    (j/insert-multi! t-con "dialog" (db/fast-rows-normalizer rows))))
 
 (defn index-dialog []
   (j/delete! db/db "dialog" ["1 = 1"])

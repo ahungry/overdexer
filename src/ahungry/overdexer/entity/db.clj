@@ -6,11 +6,19 @@
    [clojure.walk]))
 
 ;; https://github.com/clojure/java.jdbc
+;; "jdbc:sqlite:%s?journal_mode=WAL&synchronous=OFF&journal_size_limit=500"
+;; (j/execute! db-con "PRAGMA synchronous = OFF")
+;; (j/query db-con "PRAGMA journal_mode = MEMORY")
 (def db
-  {:dbtype "sqlite"
-   :dbname "override.db"
-   ;; :pragma {:synchronous "OFF"
-   ;;          :journal_mode "MEMORY"}
+  {
+   ;; :dbtype "sqlite"
+   ;; :dbname "override.db"
+   ;; :journal_mode "MEMORY"
+   ;; :synchronous "OFF"
+
+   :connection-uri "jdbc:sqlite:override.db?journal_mode=MEMORY&synchronous=OFF&journal_size_limit=5000000"
+   ;; :connection-uri "jdbc:sqlite::memory:?journal_mode=MEMORY&synchronous=OFF&journal_size_limit=5000000"
+
    })
 
 (defn key->column [s]
@@ -29,12 +37,12 @@
        (vals (apply assoc {} spec))
        ))
 
-(defn make-table-from-spec [db name spec pk-type]
+(defn make-table-from-spec [db name spec pk-type unique]
   (let [ddl (j/create-table-ddl
              name
-             (conj (spec->columns spec) ["pkid" pk-type "primary_key"])
+             (conj (spec->columns spec) ["pkid" pk-type "primary_key" unique])
              {:conditional? true})]
-    ;; (prn ddl)
+    (prn ddl)
     (j/execute! db ddl)))
 
 (defn normalize-keyword [kw]
