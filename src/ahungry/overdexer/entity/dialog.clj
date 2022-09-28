@@ -57,7 +57,7 @@
     {:header header
 
      :entries
-     (map (fn [i]
+     (pmap (fn [i]
             (let [entry (io/decode entry-frame (.slice dialog (+ 18 (* i 26)) 26))]
               {:entry entry
                :pkid i
@@ -75,10 +75,10 @@
 (db/make-table-from-spec db/db "dialog" (conj entry-spec "string" nil) "int")
 
 (defn batch-import [rows]
-  (j/execute! db/db "PRAGMA synchronous = OFF")
-  (j/query db/db "PRAGMA journal_mode = MEMORY")
   ;; Insert all the top level data rows
   (j/with-db-transaction [t-con db/db]
+    (j/execute! db/db "PRAGMA synchronous = OFF")
+    (j/query db/db "PRAGMA journal_mode = MEMORY")
     (j/insert-multi! t-con "dialog" (map db/rows-normalizer rows))))
 
 (defn index-dialog []

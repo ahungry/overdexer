@@ -9,6 +9,8 @@
 (def db
   {:dbtype "sqlite"
    :dbname "override.db"
+   ;; :pragma {:synchronous "OFF"
+   ;;          :journal_mode "MEMORY"}
    })
 
 (defn key->column [s]
@@ -32,7 +34,7 @@
              name
              (conj (spec->columns spec) ["pkid" pk-type "primary_key"])
              {:conditional? true})]
-    (prn ddl)
+    ;; (prn ddl)
     (j/execute! db ddl)))
 
 (defn normalize-keyword [kw]
@@ -42,8 +44,9 @@
   (cond
     (= "resref" (get m "type")) (util/get-resref (get m "val"))
     (= "strref" (get m "type")) (get m "val")
-    (vector? (get m "val")) (str val)
-    :else val))
+    (vector? (get m "val")) (str (get m "val"))
+    (map? m) (get m "val")
+    :else m))
 
 (defn rows-normalizer [rows]
   (clojure.walk/postwalk
@@ -51,3 +54,17 @@
      (cond (keyword? x) (normalize-keyword x)
            (get x "type") (normalize-type x)
            :else x)) rows))
+
+(defn fast-normalize-type [m]
+  (cond
+    (= :resref (get m :type)) (util/get-resref (get m :val))
+    (= :strref (get m :type)) (get m :val)
+    (vector? (get m :val)) (str :val)
+    (map? m) (get m :val)
+    :else m))
+
+(defn fast-rows-normalizer [rows]
+  (pmap
+   (fn [row]
+     (reduce-kv (fn [acc k v] (conj acc {(key->column k) (fast-normalize-type v)})) {} row))
+   rows))
