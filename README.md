@@ -7,6 +7,7 @@ parsing the binary formats in Clojure).
 # Installation
 
 Ensure you have a current copy of Clojure available (clj command).
+
 Coming soon: An uberjar that'll allow a simple
 `java -jar snapshot.jar` to do this.
 
