@@ -18,8 +18,8 @@
     (prn {:override-dir override-dir
           :dialog-dir dialog-dir})
     (prn "Indexing the items, please be patient (takes ~30s or so)...")
-    (time (itm/index-itm override-dir))
+    (time (prn (itm/index-itm override-dir)))
     (prn "Indexing the dialog.tlk, please be patient (takes ~5m or so? oof)")
-    (time (dialog/index-dialog dialog-dir))
+    (time (prn (dialog/index-dialog dialog-dir)))
     ;; (greet {:name (first args)})
     (System/exit 0)))

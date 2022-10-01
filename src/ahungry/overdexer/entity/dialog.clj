@@ -60,19 +60,21 @@
 
      :entries
      (pmap (fn [i]
-            (let [entry (io/decode entry-frame (.slice dialog (+ 18 (* i 26)) 26))]
-              {:entry entry
-               :pkid i
-               :string (io/decode
-                        (ie/safe-string (:length entry))
-                        (.slice dialog
-                                (+ (:offset-to-string-data header)
-                                   (:offset entry))
-                                (:length entry)
-                                ))}))
-          (range (:number-of-strref-entries header)))
-     }
-    ))
+             (let [entry (io/decode entry-frame (.slice dialog (+ 18 (* i 26)) 26))]
+               {:entry entry
+                :pkid i
+                :string
+                (let [segment (.slice dialog
+                                      (+ (:offset-to-string-data header)
+                                         (:offset entry))
+                                      (:length entry)
+                                      )]
+                  (try
+                    ;; Using the char-array is ~10x faster but can hit errors on some vals
+                    (io/decode (ie/_char-array (:length entry)) segment)
+                    (catch Exception _ (io/decode (ie/safe-string (:length entry)) segment))
+                    ))}))
+           (range (:number-of-strref-entries header)))}))
 
 (db/make-table-from-spec db/db "dialog" (conj entry-spec "string" nil) "int" "unique")
 
@@ -87,10 +89,10 @@
   (util/rows->csv "dialog" (db/fast-rows-normalizer rows)))
 
 (defn index-dialog [dialog-dir]
-  (j/delete! db/db "dialog" ["1 = 1"])
+  (j/delete! db/db "dialog" [])
   (->> (parse-dialog dialog-dir)
        :entries
-       (pmap (fn [entry] (conj (:entry entry) {:pkid (:pkid entry)} {:string (:string entry)})))
-       ;; batch-import
-       batch-csv
-       ))
+       (pmap (fn [entry] (conj {:pkid (:pkid entry)} (:entry entry) {:string (:string entry)})))
+       batch-import
+       ;; batch-csv
+       count))

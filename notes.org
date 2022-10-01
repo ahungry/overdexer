@@ -21,3 +21,14 @@ Similarly, resref entries are pure garbage on some (maybe a mod uses
 that memory area for some special purpose) - it breaks the parser
 unless I take simple bytes - in NI they just get zeroed out to the
 null bytes in their hex editor.
+
+* Import timing on dialog file
+It's possible to write to the csv in ~50 seconds, and import via:
+
+#+begin_src
+echo '.import --csv --skip 1 /tmp/dialog1.csv dialog' | sqlite3 ./override.db
+#+end_src
+
+in around 10 - making the total process take 60s instead of 120s,
+however this wouldn't really be cross platform compatible in the same
+way that the JVM is.
