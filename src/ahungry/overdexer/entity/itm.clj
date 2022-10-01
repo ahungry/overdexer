@@ -236,6 +236,17 @@
 
     ))
 
+(defn batch-csv
+  "Write a bunch of rows to a csv."
+  [rows]
+  ;; Insert all the top level data rows
+  (doall
+   (pvalues
+    (util/rows->csv "itm_header" (db/fast-rows-normalizer (map :header rows)))
+    (util/rows->csv "itm_ext_header" (db/fast-rows-normalizer (flatten (map :ext-headers rows))))
+    (util/rows->csv "itm_feature_block" (db/fast-rows-normalizer (flatten (map :feature-blocks rows))))
+    )))
+
 (defn index-itm [override-dir]
   (j/delete! db/db "itm_header" ["1 = 1"])
   (j/delete! db/db "itm_ext_header" ["1 = 1"])
@@ -249,5 +260,6 @@
                   :feature-blocks (map (fn [x] (conj x {:pkid name})) (:feature-blocks parsed))
                   })))
        batch-import
+       ;; batch-csv
        doall)
   true)

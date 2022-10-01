@@ -1,5 +1,6 @@
 (ns ahungry.overdexer.util
   (:require
+   [clojure.data.csv :as csv]
    [clojure.java.io]))
 
 ;; https://www.geeksforgeeks.org/bit-manipulation-swap-endianness-of-a-number/
@@ -59,3 +60,9 @@
          (filter #(re-matches rx %)))))
 
 (def glob (partial glob-dir "/home/mcarter/bgee/bgee2/override/"))
+
+(defn rows->csv [name rows]
+  (let [headers (keys (first rows))
+        rows2 (map vals rows) ]
+    (with-open [file (clojure.java.io/writer (str "/tmp/" name ".csv"))]
+      (csv/write-csv file (cons headers rows2)))))
