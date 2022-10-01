@@ -259,7 +259,7 @@
                   :ext-headers (map (fn [x] (conj x {:pkid name})) (:ext-headers parsed))
                   :feature-blocks (map (fn [x] (conj x {:pkid name})) (:feature-blocks parsed))
                   })))
-       batch-import
-       ;; batch-csv
+       ;; batch-import
+       batch-csv
        doall)
   true)

@@ -83,10 +83,14 @@
     ;; (j/query db/db "PRAGMA journal_mode = MEMORY")
     (j/insert-multi! t-con "dialog" (db/fast-rows-normalizer rows))))
 
+(defn batch-csv [rows]
+  (util/rows->csv "dialog" (db/fast-rows-normalizer rows)))
+
 (defn index-dialog [dialog-dir]
   (j/delete! db/db "dialog" ["1 = 1"])
   (->> (parse-dialog dialog-dir)
        :entries
        (pmap (fn [entry] (conj (:entry entry) {:pkid (:pkid entry)} {:string (:string entry)})))
-       batch-import
+       ;; batch-import
+       batch-csv
        ))
