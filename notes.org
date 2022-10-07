@@ -32,3 +32,10 @@ echo '.import --csv --skip 1 /tmp/dialog1.csv dialog' | sqlite3 ./override.db
 in around 10 - making the total process take 60s instead of 120s,
 however this wouldn't really be cross platform compatible in the same
 way that the JVM is.
+
+* Clojure refreshers
+Building a clojure web app using ring jetty
+https://otee.dev/2022/01/25/clojure-backend-using-ring-jetty-compojure.html
+
+Building a clojurescript app / spa
+https://medium.com/codex/creating-a-clojurescript-spa-for-the-first-time-pt-1-d3012c42e622
