@@ -6,9 +6,11 @@ DIALOG_DIR?="/tmp"
 
 all: test
 
-run: run-m
-run-m:
-	clojure -M:run-m "$(OVERRIDE_DIR)" "$(DIALOG_DIR)"
+server:
+	clojure -M:run-m server
+
+reindex:
+	clojure -M:run-m reindex "$(OVERRIDE_DIR)" "$(DIALOG_DIR)"
 
 # Note this one requires exec-fn is defined or it won't work
 run-x:

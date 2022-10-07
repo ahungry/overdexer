@@ -1,5 +1,6 @@
 (ns ahungry.overdexer
   (:require
+   [ahungry.overdexer.server :as server]
    [ahungry.overdexer.entity.itm :as itm]
    [ahungry.overdexer.entity.dialog :as dialog]
    )
@@ -10,7 +11,7 @@
   [data]
   (println (str "Hello, " (or (:override-dir data) "World") "!")))
 
-(defn -main
+(defn reindex
   "I don't do a whole lot ... yet."
   [& args]
   (let [override-dir (first args)
@@ -23,3 +24,9 @@
     (time (prn (dialog/index-dialog dialog-dir)))
     ;; (greet {:name (first args)})
     (System/exit 0)))
+
+(defn -main [& args]
+  (case (first args)
+    "reindex" (reindex (rest args))
+    "server" (server/start)
+    (prn "Please choose a command: [ reindex | server ]")))
