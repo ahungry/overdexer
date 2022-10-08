@@ -23,7 +23,14 @@
   :run-x {:ns-default ahungry.overdexer
           :exec-fn greet
           :exec-args {:name "Clojure"}}
+
   :build-dev {:main-opts ["-m" "figwheel.main" "-b" "dev" "-r"]}
+
+  ;; https://figwheel.org/docs/compile_config.html
+  ;; https://figwheel.org/docs/advanced_compile.html
+  ;; TODO: Think how we want to set up a prod build/uberjar
+  :build-prod {:main-opts ["-m" "figwheel.main" "-b" "prod" "-r"]}
+
   :build {:deps {io.github.seancorfield/build-clj
                  {:git/tag "v0.8.2" :git/sha "0ffdb4c"
                   ;; since we're building an app uberjar, we do not

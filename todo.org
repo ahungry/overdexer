@@ -1,1 +1,3 @@
 * DONE Add CLI input to the launch argument to specify user directory to index
+
+* TODO Figure out a setup for the uberjar that'd include figwheel stuff

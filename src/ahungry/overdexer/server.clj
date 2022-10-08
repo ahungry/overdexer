@@ -3,6 +3,8 @@
    [clojure.data.json :as json]
    [clojure.pprint]
    [ring.adapter.jetty :as jetty]
+   [ring.util.response :refer [redirect]]
+   [ring.middleware.resource :refer [wrap-resource]]
    [compojure.core :as compojure]
    [compojure.route :as compojure-route]
    ))
@@ -10,7 +12,7 @@
 (defn get-version [] "0.0.2")
 
 (defn get-landing-page []
-  "<b>Hello world</b>")
+  (redirect "/app.html"))
 
 (compojure/defroutes api-routes
   (compojure/GET "/version.json" [] {:body {:version (get-version)}}))
@@ -61,7 +63,7 @@
     (reset!
      server
      (jetty/run-jetty
-      app
+      (wrap-resource app "public")
       {:port 3000
        :join? (or (first args) false)})))
   (.browse (java.awt.Desktop/getDesktop) (java.net.URI. "http://localhost:3000")))

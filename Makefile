@@ -23,8 +23,10 @@ run-x:
 test:
 	clj -T:build test
 
+# Builds the bundle resource via figwheel, then creates an uberjar
 uberjar: ci
 ci:
+	clj -m figwheel.main -o resources/public/js/bundle.js -O advanced -bo prod
 	clj -T:build ci
 
 deps: prepare
