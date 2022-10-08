@@ -28,5 +28,5 @@
 (defn -main [& args]
   (case (first args)
     "reindex" (reindex (rest args))
-    "server" (server/start)
+    "server" (server/start true)
     (prn "Please choose a command: [ reindex | server ]")))

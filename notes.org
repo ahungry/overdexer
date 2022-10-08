@@ -39,3 +39,6 @@ https://otee.dev/2022/01/25/clojure-backend-using-ring-jetty-compojure.html
 
 Building a clojurescript app / spa
 https://medium.com/codex/creating-a-clojurescript-spa-for-the-first-time-pt-1-d3012c42e622
+
+Setting up figwheel (used this instead of second link)
+https://figwheel.org/#quick-usage

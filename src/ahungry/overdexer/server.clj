@@ -7,28 +7,35 @@
    [compojure.route :as compojure-route]
    ))
 
-(compojure/defroutes my-routes
-  (compojure/GET "/" [] "Hello World")
-  (compojure/GET "/version" [] {:body {:version "0.0.1"}})
+(defn get-version [] "0.0.2")
+
+(defn get-landing-page []
+  "<b>Hello world</b>")
+
+(compojure/defroutes api-routes
+  (compojure/GET "/version.json" [] {:body {:version (get-version)}}))
+
+(compojure/defroutes web-routes
+  (compojure/GET "/" [] (get-landing-page))
   (compojure-route/not-found "Page not found"))
+
 
 (defn wrap-headers [handler]
   (fn [req]
-    (prn "wrap-headers")
     (let [res (handler req)]
       (-> res (assoc-in [:headers "content-type"] "application/json")))))
 
 (defn wrap-json [handler]
   (fn [req]
-    (prn "wrap-json")
     (let [res (handler req)]
       (-> res (update-in [:body] json/write-str)))))
 
 (def app
   (compojure/routes
-   (-> my-routes
+   (-> api-routes
        (compojure/wrap-routes #'wrap-headers)
-       (compojure/wrap-routes #'wrap-json))))
+       (compojure/wrap-routes #'wrap-json))
+   web-routes))
 
 (defn handler [request]
   (clojure.pprint/pprint request)
@@ -36,9 +43,23 @@
    :headers {"Content-Type" "text/html"}
    :body "Hello World"})
 
+(defonce server (atom nil))
+
 (defn start
   [& args]
-  (jetty/run-jetty
-   app
-   {:port 3000
-    :join? true}))
+  (if @server
+    (.start @server)
+    (reset!
+     server
+     (jetty/run-jetty
+      app
+      {:port 3000
+       :join? (or (first args) false)}))))
+
+(defn stop []
+  (when @server (.stop @server)))
+
+(defn reset []
+  (stop)
+  (reset! server nil)
+  (start))
