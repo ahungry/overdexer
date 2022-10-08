@@ -11,10 +11,14 @@
 
 (defn get-version [] "0.0.2")
 
+(defn get-items []
+  [{:name "foo"} {:name "bar"}])
+
 (defn get-landing-page []
   (redirect "/app.html"))
 
 (compojure/defroutes api-routes
+  (compojure/GET "/items.json" [] {:body (get-items)})
   (compojure/GET "/version.json" [] {:body {:version (get-version)}}))
 
 (compojure/defroutes web-routes
