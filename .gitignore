@@ -27,6 +27,7 @@
 /checkouts
 /classes
 /target
+/release
 *.db
 *.db-journal
 /resources/public/js/bundle.js
