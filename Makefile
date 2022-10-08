@@ -1,8 +1,8 @@
 # https://clojure.org/reference/deps_and_cli
 # A lot of this is convenience for myself, as I used to use the lazy lein
 # commands, and now I've gotta learn deps.edn...
-OVERRIDE_DIR?="/tmp"
-DIALOG_DIR?="/tmp"
+OVERRIDE_DIR?="nil"
+DIALOG_DIR?="nil"
 
 all: test
 
@@ -14,7 +14,7 @@ figwheel:
 	clojure -M:build-dev
 
 reindex:
-	clojure -M:run-m reindex "$(OVERRIDE_DIR)" "$(DIALOG_DIR)"
+	clojure -M:run-m reindex :override-dir "$(OVERRIDE_DIR)" :dialog-dir "$(DIALOG_DIR)" :exit true
 
 # Note this one requires exec-fn is defined or it won't work
 run-x:
