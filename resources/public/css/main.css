@@ -61,9 +61,21 @@ button {
   width: 24px;
 }
 
-h1 {
+h3 {
   color: #666;
   display: inline-block;
   font-style: italic;
   font-weight: normal;
+  margin: 0;
+}
+
+.bottom {
+  color: #fff;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: 3px 3px 6px #000;
+  padding: 0.5rem;
 }

@@ -9,7 +9,9 @@
    [compojure.route :as compojure-route]
    ))
 
-(defn get-version [] "0.0.2")
+(defn get-version []
+  (Thread/sleep 1000)
+  "0.0.2")
 
 (defn get-items []
   [{:name "foo"} {:name "bar"}])
