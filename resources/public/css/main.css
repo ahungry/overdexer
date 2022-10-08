@@ -1,0 +1,24 @@
+html, body {
+  background: #333;
+  padding: 0.8 rem;
+}
+
+body {
+  background: #fff;
+  border-radius: 8px;
+  padding: 2rem;
+}
+
+button {
+  background: #111;
+  border: 0;
+  color: #ccc;
+  margin-left: 4px;
+  margin-right: 4px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.break {
+  box-shadow: 0px 0px 9px #333;
+}

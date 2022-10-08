@@ -17,22 +17,24 @@
 (rf/reg-event-db
  ::initialize-db
  (fn [_ _]
-   {:model 0}))
+   {:model 0
+    :version "???"}))
 
-(rf/reg-event-db
- ::increment
- (fn [db _]
-   (update db :model inc)))
+(rf/reg-event-db ::increment (fn [db _] (update db :model inc)))
+(rf/reg-event-db ::get-version (fn [db _] (assoc db :version "1.2.3")))
 
-(rf/reg-sub
- ::model
- (fn [db _]
-   (:model db)))
+(rf/reg-sub ::model (fn [db _] (:model db)))
+(rf/reg-sub ::version (fn [db _] (:version db)))
+
+(rf/dispatch [::initialize-db])
 
 (defn main []
   [:div "It worked"
    [:button {:on-click #(rf/dispatch [::increment])} "Click me"]
-   [:div @(rf/subscribe [::model])]
+   [:button {:on-click #(rf/dispatch [::get-version])} "Get Version!"]
+   [:hr {:class "break"}]
+   [:div "Counter: " @(rf/subscribe [::model])]
+   [:div "Version: "  @(rf/subscribe [::version])]
    ])
 
 (rdom/render [main] (.getElementById js/document "app"))
