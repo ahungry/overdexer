@@ -29,7 +29,7 @@
    (go (let [res (<! (http/get "http://localhost:3000/version.json" {:with-credentials? false}))]
          (prn (:status res))
          (prn (:body res))
-         ;; (rf/dispatch [::set-version (get-in res [:body :version])])
+         (rf/dispatch [::set-version (get-in res [:body :version])])
          ))
    db))
 
