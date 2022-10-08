@@ -19,6 +19,14 @@
   (compojure/GET "/" [] (get-landing-page))
   (compojure-route/not-found "Page not found"))
 
+(defn wrap-cors [handler]
+  (fn [req]
+    (let [res (handler req)]
+      (-> res
+          (assoc-in [:headers "Access-Control-Allow-Credentials"] "true")
+          (assoc-in [:headers "Access-Control-Allow-Methods"] "GET,HEAD,OPTIONS,POST,PUT,PATCH")
+          (assoc-in [:headers "Access-Control-Allow-Headers"] "Access-Control-Allow-Headers, Authorization, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers")
+          (assoc-in [:headers "Access-Control-Allow-Origin"] "*")))))
 
 (defn wrap-headers [handler]
   (fn [req]
@@ -33,6 +41,7 @@
 (def app
   (compojure/routes
    (-> api-routes
+       (compojure/wrap-routes #'wrap-cors)
        (compojure/wrap-routes #'wrap-headers)
        (compojure/wrap-routes #'wrap-json))
    web-routes))
