@@ -13,7 +13,7 @@
 
 (defn reindex
   "I don't do a whole lot ... yet."
-  [& args]
+  [args]
   (let [override-dir (first args)
         dialog-dir (second args)]
     (prn {:override-dir override-dir

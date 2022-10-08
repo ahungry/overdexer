@@ -76,8 +76,6 @@
                     ))}))
            (range (:number-of-strref-entries header)))}))
 
-(db/make-table-from-spec db/db "dialog" (conj entry-spec "string" nil) "int" "unique")
-
 (defn batch-import [rows]
   ;; Insert all the top level data rows
   (j/with-db-transaction [t-con db/db]
@@ -89,6 +87,7 @@
   (util/rows->csv "dialog" (db/fast-rows-normalizer rows)))
 
 (defn index-dialog [dialog-dir]
+  (db/make-table-from-spec db/db "dialog" (conj entry-spec "string" nil) "int" "unique")
   (j/delete! db/db "dialog" [])
   (->> (parse-dialog dialog-dir)
        :entries

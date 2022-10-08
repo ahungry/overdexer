@@ -205,10 +205,6 @@
                     (.write channel byte-buffer)) byte-buffers))
       true)))
 
-(db/make-table-from-spec db/db "itm_header" header-spec "text" "unique")
-(db/make-table-from-spec db/db "itm_ext_header" ext-header-spec "text" "")
-(db/make-table-from-spec db/db "itm_feature_block" feature-block-spec "text" "")
-
 (defn batch-import
   "Run a bunch of inserts with special optimizations for sqlite3 db."
   [rows]
@@ -248,6 +244,9 @@
     )))
 
 (defn index-itm [override-dir]
+  (db/make-table-from-spec db/db "itm_header" header-spec "text" "unique")
+  (db/make-table-from-spec db/db "itm_ext_header" ext-header-spec "text" "")
+  (db/make-table-from-spec db/db "itm_feature_block" feature-block-spec "text" "")
   (j/delete! db/db "itm_header" ["1 = 1"])
   (j/delete! db/db "itm_ext_header" ["1 = 1"])
   (j/delete! db/db "itm_feature_block" ["1 = 1"])
