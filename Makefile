@@ -9,6 +9,10 @@ all: test
 server:
 	clojure -M:run-m server
 
+#	clj -M -m figwheel.main -b dev -r
+figwheel:
+	clojure -M:build-dev
+
 reindex:
 	clojure -M:run-m reindex "$(OVERRIDE_DIR)" "$(DIALOG_DIR)"
 

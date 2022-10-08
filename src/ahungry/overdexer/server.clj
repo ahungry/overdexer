@@ -49,12 +49,14 @@
   [& args]
   (if @server
     (.start @server)
-    (reset!
-     server
-     (jetty/run-jetty
-      app
-      {:port 3000
-       :join? (or (first args) false)}))))
+    (do
+      (reset!
+       server
+       (jetty/run-jetty
+        app
+        {:port 3000
+         :join? (or (first args) false)}))))
+  (.browse (java.awt.Desktop/getDesktop) (java.net.URI. "http://localhost:3000")))
 
 (defn stop []
   (when @server (.stop @server)))
