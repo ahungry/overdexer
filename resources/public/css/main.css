@@ -1,6 +1,6 @@
 html, body {
   background: #333;
-  padding: 0.8 rem;
+  padding: 0.8rem;
 }
 
 body {
@@ -21,4 +21,49 @@ button {
 
 .break {
   box-shadow: 0px 0px 9px #333;
+}
+
+@-moz-keyframes spin {
+    from { -moz-transform: rotate(0deg); }
+    to { -moz-transform: rotate(360deg); }
+}
+
+@-webkit-keyframes spin {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+    from {transform:rotate(0deg);}
+    to {transform:rotate(360deg);}
+}
+
+.loader:before {
+  color: #fff;
+  content: '*';
+}
+
+.loader {
+  animation: 0.5s linear infinite spin;
+  opacity: 0.5;
+  background: #0af;
+  border: 1px solid #0fa;
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
+  box-shadow: 0px 0px 3px #af0;
+  border-radius: 80px;
+  font-weight: bold;
+  display: inline-block;
+  font-size: 4.2rem;
+  overflow: hidden;
+  padding: 0px;
+  height: 24px;
+  width: 24px;
+}
+
+h1 {
+  color: #666;
+  display: inline-block;
+  font-style: italic;
+  font-weight: normal;
 }
