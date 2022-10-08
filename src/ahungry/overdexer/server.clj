@@ -2,6 +2,7 @@
   (:require
    [clojure.data.json :as json]
    [clojure.pprint]
+   [clojure.tools.logging :as log]
    [ring.adapter.jetty :as jetty]
    [ring.util.response :refer [redirect]]
    [ring.middleware.resource :refer [wrap-resource]]
@@ -46,19 +47,20 @@
     (let [res (handler req)]
       (-> res (update-in [:body] json/write-str)))))
 
+(defn wrap-log [handler]
+  (fn [req]
+    (log/trace req)
+    (handler req)))
+
 (def app
   (compojure/routes
    (-> api-routes
+       (compojure/wrap-routes #'wrap-log)
        (compojure/wrap-routes #'wrap-cors)
        (compojure/wrap-routes #'wrap-headers)
        (compojure/wrap-routes #'wrap-json))
-   web-routes))
-
-(defn handler [request]
-  (clojure.pprint/pprint request)
-  {:status 200
-   :headers {"Content-Type" "text/html"}
-   :body "Hello World"})
+   (-> web-routes
+       (compojure/wrap-routes #'wrap-log))))
 
 (defonce server (atom nil))
 
@@ -81,3 +83,5 @@
   (stop)
   (reset! server nil)
   (start))
+
+(def restart reset)
