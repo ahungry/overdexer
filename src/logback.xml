@@ -54,7 +54,7 @@
     </filter>
   </appender>
 
-  <logger name="ch.qos.logback." level="error" additivity="false">
+  <logger name="ch.qos.logback" level="error" additivity="false">
     <appender-ref ref="CONSOLE"/>
   </logger>
 
