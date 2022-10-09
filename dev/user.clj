@@ -7,3 +7,7 @@
   (apply require clojure.main/repl-requires))
 
 (go)
+
+(prn "It worked")
+
+(in-ns 'ahungry.overdexer)

@@ -42,3 +42,6 @@ https://medium.com/codex/creating-a-clojurescript-spa-for-the-first-time-pt-1-d3
 
 Setting up figwheel (used this instead of second link)
 https://figwheel.org/#quick-usage
+
+* Controlling alternate log file
+-Dlogback.configurationFile=/path/to/config.xml
