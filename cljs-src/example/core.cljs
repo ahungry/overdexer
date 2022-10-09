@@ -18,7 +18,7 @@
  ::initialize-db
  (fn [_ _]
    {:model 0
-    :is-loading? false
+    :is-loading? true
     :version "???"}))
 
 ;; https://day8.github.io/re-frame/api-re-frame.core/

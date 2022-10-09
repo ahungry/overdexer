@@ -25,7 +25,7 @@
     <filter class="ch.qos.logback.classic.filter.LevelFilter">
       <level>TRACE</level>
       <onMatch>ACCEPT</onMatch>
-      <onMismatch>DENY</onMismatch>
+      <onMismatch>NEUTRAL</onMismatch>
     </filter>
     <filter class="ch.qos.logback.classic.filter.LevelFilter">
       <level>DEBUG</level>
@@ -35,7 +35,7 @@
   </appender>
 
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-    <file>test.log</file>
+    <file>app.log</file>
     <append>false</append>
     <!-- encoders are assigned the type
          ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
@@ -45,7 +45,7 @@
     <filter class="ch.qos.logback.classic.filter.LevelFilter">
       <level>DEBUG</level>
       <onMatch>DENY</onMatch>
-      <onMismatch>ACCEPT</onMismatch>
+      <onMismatch>NEUTRAL</onMismatch>
     </filter>
     <filter class="ch.qos.logback.classic.filter.LevelFilter">
       <level>TRACE</level>
@@ -61,7 +61,14 @@
 
   <!--<logger name="clojure-example-logback-integration" level="DEBUG"/>-->
 
-  <logger name="ahungry" level="${APP_LOGGING_LEVEL:-TRACE}" additivity="false">
+  <!--<logger name="ahungry" level="${APP_LOGGING_LEVEL:-TRACE}" additivity="false">-->
+  <logger name="ahungry" level="TRACE" additivity="false">
+    <appender-ref ref="DEBUGFILE"/>
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+
+  <logger name="user" level="TRACE" additivity="false">
     <appender-ref ref="DEBUGFILE"/>
     <appender-ref ref="FILE"/>
     <appender-ref ref="CONSOLE"/>

@@ -1,7 +1,9 @@
 (ns user
   (:require
    [clojure.main]
-   [ahungry.overdexer :as od]))
+   [clojure.tools.logging :as log]
+   [ahungry.overdexer :as od]
+   [ahungry.overdexer.server :as s]))
 
 (defn go []
   (apply require clojure.main/repl-requires))
@@ -10,4 +12,4 @@
 
 (prn "It worked")
 
-(in-ns 'ahungry.overdexer)
+(s/start)
