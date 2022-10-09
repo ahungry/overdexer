@@ -16,7 +16,7 @@
 
   <appender name="DEBUGFILE" class="ch.qos.logback.core.FileAppender">
     <file>debug.log</file>
-    <append>false</append>
+    <append>true</append>
     <!-- encoders are assigned the type
          ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
     <encoder>
@@ -36,7 +36,7 @@
 
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
     <file>app.log</file>
-    <append>false</append>
+    <append>true</append>
     <!-- encoders are assigned the type
          ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
     <encoder>
