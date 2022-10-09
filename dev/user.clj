@@ -5,11 +5,11 @@
    [ahungry.overdexer :as od]
    [ahungry.overdexer.server :as s]))
 
+(prn "Greetings from clj")
+
 (defn go []
   (apply require clojure.main/repl-requires))
 
 (go)
-
-(prn "It worked")
 
 (s/start)

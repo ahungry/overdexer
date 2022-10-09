@@ -54,9 +54,12 @@
     </filter>
   </appender>
 
+  <logger name="ch.qos.logback." level="error" additivity="false">
+    <appender-ref ref="CONSOLE"/>
+  </logger>
+
   <logger name="org.eclipse.jetty" level="error" additivity="false">
     <appender-ref ref="CONSOLE"/>
-    <appender-ref ref="FILE"/>
   </logger>
 
   <!--<logger name="clojure-example-logback-integration" level="DEBUG"/>-->

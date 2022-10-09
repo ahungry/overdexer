@@ -2,7 +2,7 @@
   (:require
    [example.core :as c]))
 
-(prn "It worked from cljs")
+(prn "Greetings from cljs")
 
 ;; This is a special form...
-(in-ns 'example.core)
+;; (in-ns 'example.core)
