@@ -17,6 +17,7 @@
 (defn word [_] :uint16-le)
 
 (defn dword [_] :uint32-le)
+(defn sdword [_] :int32-le)
 
 (defn _char [_] :byte)
 
